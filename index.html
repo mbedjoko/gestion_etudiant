@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scolarité Pro | Système Intégré</title>
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; transition: all 0.2s ease; }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        aside {
+            width: var(--sidebar-width);
+            background-color: #1e293b;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-bottom: 2.5rem;
+            color: #fff;
+        }
+
+        .logo img {
+            max-width: 40px;
+            max-height: 40px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        nav { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-item:hover { background: #334155; color: white; }
+        .nav-item.active { background: var(--primary); color: white; }
+
+        /* --- MAIN CONTENT --- */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        header {
+            height: 70px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-logo-container img {
+            height: 40px;
+            width: auto;
+        }
+
+        .user-profile { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .avatar { width: 35px; height: 35px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+
+        .content-area { padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+        /* --- DASHBOARD GRIDS --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .stat-info h3 { margin: 0; font-size: 0.875rem; color: var(--text-muted); }
+        .stat-info p { margin: 5px 0 0; font-size: 1.5rem; font-weight: 700; }
+
+        /* --- TABLES & VIEWS --- */
+        .view-section { display: none; animation: fadeIn 0.3s ease; }
+        .view-section.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .data-card { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 2rem; }
+        .card-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 1rem 1.5rem; background: #f8fafc; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+
+        /* --- BUTTONS --- */
+        .btn { padding: 10px 18px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-outline:hover { background: #f1f5f9; }
+        .btn-danger { background: #fee2e2; color: var(--danger); }
+        .btn-danger:hover { background: #fecaca; }
+
+        /* --- MODAL --- */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; padding: 2rem; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+
+        /* Forms */
+        .form-group { margin-bottom: 1.25rem; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem; color: var(--text-main); }
+        input, select { width: 100%; padding: 11px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; }
+        input:focus { outline: 2px solid #c7d2fe; border-color: var(--primary); }
+
+        /* Alert Box */
+        #alert-container { position: fixed; top: 20px; right: 20px; z-index: 2000; }
+        .alert { padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; color: white; font-weight: 500; animation: slideIn 0.3s ease; }
+        .alert-success { background: var(--success); }
+        .alert-error { background: var(--danger); }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="alert-container"></div>
+
+    <!-- Sidebar -->
+    <aside>
+        <div class="logo">
+            <div id="sidebar-logo-img">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary)"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            </div>
+            <span>Scolarité Pro</span>
+        </div>
+        <nav>
+            <div class="nav-item active" data-view="dashboard" onclick="showView('dashboard')">📊 Dashboard</div>
+            <div class="nav-item" data-view="etudiants" onclick="showView('etudiants')">👨‍🎓 Étudiants</div>
+            <div class="nav-item" data-view="filieres" onclick="showView('filieres')">🧩 Filières</div>
+            <div class="nav-item" data-view="annees" onclick="showView('annees')">📅 Années</div>
+            <div class="nav-item" data-view="settings" onclick="showView('settings')">⚙️ Paramètres</div>
+        </nav>
+        <div class="nav-item" style="margin-top: auto; color: #ef4444;" onclick="location.reload()">🚪 Déconnexion</div>
+    </aside>
+
+    <main>
+        <header>
+            <div class="header-logo-container">
+                <div id="header-logo-dynamic"></div>
+                <div id="header-univ-name" style="font-size: 1.1rem; font-weight: 700; color: var(--primary);">Chargement...</div>
+            </div>
+            <div class="user-profile">
+                <div style="text-align: right">
+                    <div style="font-weight: 600; font-size: 0.9rem;">Administrateur</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Scolarité Centrale</div>
+                </div>
+                <div class="avatar">AD</div>
+            </div>
+        </header>
+
+        <div class="content-area">
+            
+            <!-- VIEW: DASHBOARD -->
+            <section id="view-dashboard" class="view-section active">
+                <h1 id="dash-univ-title" style="margin-bottom: 1.5rem; font-size: 1.5rem;">Bienvenue</h1>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #e0e7ff; color: #4338ca;">👤</div>
+                        <div class="stat-info"><h3>Total Étudiants</h3><p id="stat-total-students">0</p></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #dcfce7; color: #166534;">🧩</div>
+                        <div class="stat-info"><h3>Filières</h3><p id="stat-total-filieres">0</p></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #fef9c3; color: #854d0e;">📅</div>
+                        <div class="stat-info"><h3>Année Active</h3><p id="stat-active-year">---</p></div>
+                    </div>
+                </div>
+                <div class="data-card">
+                    <div class="card-header"><h2>Effectifs par Filière</h2></div>
+                    <div id="repartition-list" style="padding: 1.5rem;">Chargement...</div>
+                </div>
+            </section>
+
+            <!-- VIEW: ETUDIANTS -->
+            <section id="view-etudiants" class="view-section">
+                <div class="data-card">
+                    <div class="card-header">
+                        <div style="position: relative; flex: 1; max-width: 400px;">
+                            <input type="text" id="searchStudent" placeholder="Rechercher par nom, matricule ou filière..." onkeyup="filterStudents()">
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('modalStudent')">+ Ajouter Étudiant</button>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table id="studentTable">
+                            <thead>
+                                <tr><th>Matricule</th><th>Nom & Prénom</th><th>Filière</th><th>Année</th><th>Sexe</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody id="studentTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="noResults" style="display:none; padding: 2rem; text-align: center; color: var(--text-muted);">
+                        Aucun étudiant trouvé pour cette recherche.
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: FILIERES -->
+            <section id="view-filieres" class="view-section">
+                <div class="data-card">
+                    <div class="card-header">
+                        <h2>Gestion des Filières</h2>
+                        <button class="btn btn-primary" onclick="openModal('modalFiliere')">+ Nouvelle Filière</button>
+                    </div>
+                    <table>
+                        <thead><tr><th>Code</th><th>Nom de la filière</th><th>Actions</th></tr></thead>
+                        <tbody id="filiereTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- VIEW: ANNEES ACADEMIQUES -->
+            <section id="view-annees" class="view-section">
+                <div class="data-card">
+                    <div class="card-header">
+                        <h2>Cycles Académiques</h2>
+                        <button class="btn btn-primary" onclick="openModal('modalAnnee')">+ Nouvelle Année</button>
+                    </div>
+                    <table>
+                        <thead><tr><th>Libellé Année</th><th>Statut</th><th>Actions</th></tr></thead>
+                        <tbody id="anneeTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- VIEW: PARAMETRES -->
+            <section id="view-settings" class="view-section">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                    <div class="data-card" style="padding: 1.5rem;">
+                        <h3 style="margin-top:0">Informations Établissement</h3>
+                        <form id="formSettings">
+                            <div class="form-group">
+                                <label>Nom de l'Université</label>
+                                <input type="text" id="set_univ_nom" placeholder="Nom de l'établissement">
+                            </div>
+                            <div class="form-group">
+                                <label>Logo (URL)</label>
+                                <input type="text" id="set_univ_logo" placeholder="https://example.com/logo.png">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Enregistrer les infos</button>
+                        </form>
+                    </div>
+                    <div class="data-card" style="padding: 1.5rem;">
+                        <h3 style="margin-top:0">Maintenance & Données</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted)">Gérez vos sauvegardes et exportez les données de la scolarité.</p>
+                        <div style="display:flex; flex-direction:column; gap:10px; margin-top:20px;">
+                            <button class="btn btn-outline" onclick="exportData()">⬇️ Exporter au format CSV</button>
+                            <button class="btn btn-outline" onclick="generateBackup()">💾 Sauvegarder la base .db</button>
+                            <button class="btn btn-danger" onclick="resetSystem()">⚠️ Réinitialiser le système</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- MODALS -->
+    <!-- Modal Etudiant -->
+    <div id="modalStudent" class="modal">
+        <div class="modal-content">
+            <h3>Inscription Étudiant</h3>
+            <form id="formStudent">
+                <div class="form-group"><label>Matricule</label><input type="text" id="std_matricule" required></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+                    <div class="form-group"><label>Nom</label><input type="text" id="std_nom" required></div>
+                    <div class="form-group"><label>Prénom</label><input type="text" id="std_prenom" required></div>
+                </div>
+                <div class="form-group"><label>Filière</label><select id="std_filiere" required></select></div>
+                <div class="form-group"><label>Année Académique</label><select id="std_annee" required></select></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+                    <div class="form-group"><label>Sexe</label><select id="std_sexe"><option value="M">Masculin</option><option value="F">Féminin</option></select></div>
+                    <div class="form-group"><label>Date de Naissance</label><input type="date" id="std_dob" required></div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:10px">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modalStudent')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Filière -->
+    <div id="modalFiliere" class="modal">
+        <div class="modal-content">
+            <h3>Nouvelle Filière</h3>
+            <form id="formFiliere">
+                <div class="form-group"><label>Code Filière</label><input type="text" id="fil_code" placeholder="Ex: INF" required></div>
+                <div class="form-group"><label>Nom Complet</label><input type="text" id="fil_nom" placeholder="Ex: Génie Logiciel" required></div>
+                <div style="display:flex; justify-content:flex-end; gap:10px">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modalFiliere')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Créer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Année -->
+    <div id="modalAnnee" class="modal">
+        <div class="modal-content">
+            <h3>Ajouter un Cycle</h3>
+            <form id="formAnnee">
+                <div class="form-group"><label>Libellé de l'année</label><input type="text" id="ann_libelle" placeholder="Ex: 2025-2026" required></div>
+                <div style="display:flex; justify-content:flex-end; gap:10px">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modalAnnee')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.port === "3000" ? "/api" : "http://localhost:3000/api";
+
+        // --- GLOBAL STATE ---
+        let univSettings = { universite_nom: "Scolarité Pro", universite_logo: "" };
+
+        // --- NAVIGATION ---
+        function showView(viewId) {
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById(`view-${viewId}`);
+            if(target) target.classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(i => {
+                i.classList.remove('active');
+                if(i.getAttribute('data-view') === viewId) i.classList.add('active');
+            });
+
+            if(viewId === 'dashboard') loadStats();
+            if(viewId === 'etudiants') loadStudents();
+            if(viewId === 'filieres') loadFilieres();
+            if(viewId === 'annees') loadAnnees();
+            if(viewId === 'settings') loadSettings();
+        }
+
+        // --- SEARCH FEATURE (FIXED) ---
+        function filterStudents() {
+            const input = document.getElementById("searchStudent");
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById("studentTable");
+            const tr = table.getElementsByTagName("tr");
+            let visibleCount = 0;
+
+            // Commencer à 1 pour ignorer l'en-tête
+            for (let i = 1; i < tr.length; i++) {
+                const tdNom = tr[i].getElementsByTagName("td")[1];
+                const tdMatricule = tr[i].getElementsByTagName("td")[0];
+                const tdFiliere = tr[i].getElementsByTagName("td")[2];
+                
+                if (tdNom || tdMatricule || tdFiliere) {
+                    const nomComplet = tdNom.textContent || tdNom.innerText;
+                    const nomMinuscule = nomComplet.toLowerCase().trim();
+                    const textValue = (nomMinuscule + " " + tdMatricule.textContent + " " + tdFiliere.textContent).toLowerCase();
+                    if (textValue.startsWith(filter)) {
+                        tr[i].style.display = "";
+                        visibleCount++;
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+
+            // Gérer le message "Aucun résultat"
+            document.getElementById("noResults").style.display = visibleCount === 0 && tr.length > 1 ? "block" : "none";
+        }
+
+        // --- NOTIFICATIONS ---
+        function notify(msg, type='success') {
+            const container = document.getElementById('alert-container');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerText = msg;
+            container.appendChild(alert);
+            setTimeout(() => alert.remove(), 3000);
+        }
+
+        // --- SETTINGS ---
+        async function loadSettings() {
+            try {
+                const res = await fetch(`${API_URL}/settings`);
+                if (res.ok) {
+                    univSettings = await res.json();
+                    const univName = univSettings.universite_nom || "Scolarité Pro";
+                    document.getElementById('header-univ-name').innerText = univName;
+                    document.getElementById('dash-univ-title').innerText = `Système de gestion - ${univName}`;
+                    
+                    if(univSettings.universite_logo) {
+                        const imgHtml = `<img src="${univSettings.universite_logo}" alt="Logo" style="height:40px; border-radius:4px;">`;
+                        document.getElementById('header-logo-dynamic').innerHTML = imgHtml;
+                        document.getElementById('sidebar-logo-img').innerHTML = imgHtml;
+                    }
+
+                    if(document.getElementById('set_univ_nom')) document.getElementById('set_univ_nom').value = univSettings.universite_nom || "";
+                    if(document.getElementById('set_univ_logo')) document.getElementById('set_univ_logo').value = univSettings.universite_logo || "";
+                }
+            } catch(e) { 
+                document.getElementById('header-univ-name').innerText = "Scolarité Pro (Mode déconnecté)";
+            }
+        }
+
+        document.getElementById('formSettings').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = {
+                universite_nom: document.getElementById('set_univ_nom').value,
+                universite_logo: document.getElementById('set_univ_logo').value
+            };
+            try {
+                const res = await fetch(`${API_URL}/settings`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                if(res.ok) {
+                    notify("Paramètres mis à jour !");
+                    loadSettings();
+                }
+            } catch(err) {
+                notify("Erreur lors de l'enregistrement", "error");
+            }
+        };
+
+        // --- DATA LOADERS ---
+        async function loadStats() {
+            try {
+                const res = await fetch(`${API_URL}/stats`);
+                if (!res.ok) return;
+                const data = await res.json();
+                document.getElementById('stat-total-students').innerText = data.totalEtudiants || 0;
+                document.getElementById('stat-total-filieres').innerText = data.totalFilieres || 0;
+                
+                const list = document.getElementById('repartition-list');
+                list.innerHTML = '';
+                if (data.repartitionFiliere && data.repartitionFiliere.length > 0) {
+                    data.repartitionFiliere.forEach(f => {
+                        const pct = data.totalEtudiants > 0 ? (f.count/data.totalEtudiants*100).toFixed(0) : 0;
+                        list.innerHTML += `
+                            <div style="margin-bottom:12px">
+                                <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:4px">
+                                    <span>${f.nom_filiere}</span><span>${f.count} (${pct}%)</span>
+                                </div>
+                                <div style="height:6px; background:#e2e8f0; border-radius:10px; overflow:hidden">
+                                    <div style="width:${pct}%; height:100%; background:var(--primary)"></div>
+                                </div>
+                            </div>`;
+                    });
+                } else {
+                    list.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">Aucune donnée à afficher</p>';
+                }
+
+                const aRes = await fetch(`${API_URL}/annees`);
+                const aData = await aRes.json();
+                if(aData.data && aData.data.length > 0) {
+                    document.getElementById('stat-active-year').innerText = aData.data[0].libelle;
+                }
+            } catch(e) {}
+        }
+
+        async function loadStudents() {
+            try {
+                const res = await fetch(`${API_URL}/etudiants`);
+                const json = await res.json();
+                const body = document.getElementById('studentTableBody');
+                body.innerHTML = '';
+                if (json.data) {
+                    json.data.forEach(s => {
+                        body.innerHTML += `<tr>
+                            <td><b>${s.matricule}</b></td>
+                            <td>${s.nom} ${s.prenom}</td>
+                            <td>${s.nom_filiere}</td>
+                            <td>${s.annee}</td>
+                            <td>${s.sexe}</td>
+                            <td><button class="btn btn-danger" onclick="deleteStudent(${s.id_etudiant})">🗑️</button></td>
+                        </tr>`;
+                    });
+                }
+                filterStudents(); // Réappliquer le filtre si nécessaire
+            } catch(e) {}
+        }
+
+        async function loadFilieres() {
+            try {
+                const res = await fetch(`${API_URL}/filieres`);
+                const json = await res.json();
+                const body = document.getElementById('filiereTableBody');
+                body.innerHTML = '';
+                if (json.data) {
+                    json.data.forEach(f => {
+                        body.innerHTML += `<tr><td>${f.code_filiere}</td><td>${f.nom_filiere}</td><td><button class="btn btn-danger" onclick="deleteFiliere(${f.id_filiere})">🗑️</button></td></tr>`;
+                    });
+                    const sel = document.getElementById('std_filiere');
+                    if(sel) {
+                        sel.innerHTML = '<option value="">Choisir...</option>';
+                        json.data.forEach(f => sel.innerHTML += `<option value="${f.id_filiere}">${f.nom_filiere}</option>`);
+                    }
+                }
+            } catch(e) {}
+        }
+
+        async function loadAnnees() {
+            try {
+                const res = await fetch(`${API_URL}/annees`);
+                const json = await res.json();
+                const body = document.getElementById('anneeTableBody');
+                body.innerHTML = '';
+                if (json.data) {
+                    json.data.forEach(a => {
+                        body.innerHTML += `<tr><td>${a.libelle}</td><td><span style="color:var(--success)">Active</span></td><td><button class="btn btn-danger" onclick="deleteAnnee(${a.id_annee})">🗑️</button></td></tr>`;
+                    });
+                    const sel = document.getElementById('std_annee');
+                    if(sel) {
+                        sel.innerHTML = '<option value="">Choisir...</option>';
+                        json.data.forEach(a => sel.innerHTML += `<option value="${a.id_annee}">${a.libelle}</option>`);
+                    }
+                }
+            } catch(e) {}
+        }
+
+        // --- DELETIONS ---
+        async function deleteStudent(id) {
+            if(confirm("Supprimer cet étudiant ?")) {
+                const res = await fetch(`${API_URL}/etudiants/${id}`, { method: 'DELETE' });
+                if(res.ok) {
+                    notify("Étudiant supprimé", "error");
+                    loadStudents();
+                    loadStats();
+                }
+            }
+        }
+
+        async function deleteFiliere(id) {
+            if(confirm("Supprimer cette filière ?")) {
+                const res = await fetch(`${API_URL}/filieres/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if(res.ok) {
+                    notify(data.message);
+                    loadFilieres();
+                } else {
+                    notify(data.error, "error");
+                }
+            }
+        }
+
+        async function deleteAnnee(id) {
+            if(confirm("Supprimer cette année académique ?")) {
+                const res = await fetch(`${API_URL}/annees/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if(res.ok) {
+                    notify(data.message);
+                    loadAnnees();
+                } else {
+                    notify(data.error, "error");
+                }
+            }
+        }
+
+        // --- FORM SUBMISSIONS ---
+        document.getElementById('formFiliere').onsubmit = async (e) => {
+            e.preventDefault();
+            await fetch(`${API_URL}/filieres`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({code_filiere: document.getElementById('fil_code').value, nom_filiere: document.getElementById('fil_nom').value})
+            });
+            notify("Filière ajoutée !");
+            closeModal('modalFiliere');
+            loadFilieres();
+        };
+
+        document.getElementById('formAnnee').onsubmit = async (e) => {
+            e.preventDefault();
+            await fetch(`${API_URL}/annees`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({libelle: document.getElementById('ann_libelle').value})
+            });
+            notify("Année académique ajoutée !");
+            closeModal('modalAnnee');
+            loadAnnees();
+        };
+
+        document.getElementById('formStudent').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = {
+                matricule: document.getElementById('std_matricule').value,
+                nom: document.getElementById('std_nom').value,
+                prenom: document.getElementById('std_prenom').value,
+                date_naissance: document.getElementById('std_dob').value,
+                sexe: document.getElementById('std_sexe').value,
+                id_filiere: document.getElementById('std_filiere').value,
+                id_annee: document.getElementById('std_annee').value
+            };
+            await fetch(`${API_URL}/etudiants`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            notify("Étudiant inscrit avec succès !");
+            closeModal('modalStudent');
+            loadStudents();
+            loadStats();
+        };
+
+        // --- MODAL UTILS ---
+        function openModal(id) { 
+            document.getElementById(id).style.display = 'flex'; 
+            if(id === 'modalStudent') { loadFilieres(); loadAnnees(); }
+        }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // --- EXPORTS ---
+        function exportData() {
+            window.location.href = `${API_URL}/maintenance/export-csv`;
+            notify("Génération du CSV...");
+        }
+
+        async function generateBackup() {
+            try {
+                const res = await fetch(`${API_URL}/maintenance/backup`);
+                const data = await res.json();
+                notify(`${data.message}`);
+            } catch(e) { notify("Erreur de sauvegarde", "error"); }
+        }
+
+        function resetSystem() {
+            if(confirm("Êtes-vous certain de vouloir TOUT supprimer ? Cette action est irréversible.")) {
+                notify("Fonction de réinitialisation non implémentée côté client.", "error");
+            }
+        }
+
+        window.onload = () => {
+            loadSettings();
+            loadStats();
+        };
+    </script>
+</body>
+</html>

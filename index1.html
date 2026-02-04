@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Étudiants</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --bg-color: #f4f6f7;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            width: 100%;
+            padding: 1rem 0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            width: 90%;
+            max-width: 1200px;
+            margin-top: 20px;
+        }
+
+        /* Formulaire Section */
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            flex: 1;
+            min-width: 300px;
+        }
+
+        h2 { border-bottom: 2px solid var(--secondary-color); padding-bottom: 10px; margin-top: 0; color: var(--primary-color); }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            box-sizing: border-box; 
+        }
+        input:focus, select:focus { outline: none; border-color: var(--secondary-color); }
+
+        button.btn-submit {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        button.btn-submit:hover { background-color: #2980b9; }
+
+        /* Table Section */
+        .table-container { flex: 2; min-width: 500px; overflow-x: auto; }
+
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: var(--primary-color); color: white; }
+        tr:hover { background-color: #f1f1f1; }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .badge-m { background-color: #d1ecf1; color: #0c5460; }
+        .badge-f { background-color: #f8d7da; color: #721c24; }
+
+        .btn-delete {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .btn-delete:hover { background-color: #c0392b; }
+
+        #messageBox {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: none;
+            text-align: center;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🎓 Gestion des Étudiants</h1>
+</header>
+
+<div class="container">
+    
+    <!-- Formulaire d'ajout -->
+    <div class="card">
+        <h2>Nouvel Étudiant</h2>
+        <div id="messageBox"></div>
+        <form id="studentForm">
+            <div class="form-group">
+                <label for="matricule">Matricule</label>
+                <input type="text" id="matricule" placeholder="Ex: UNI2024-001" required>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex: 1;">
+                    <label for="nom">Nom</label>
+                    <input type="text" id="nom" required>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="prenom">Prénom</label>
+                    <input type="text" id="prenom" required>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex: 1;">
+                    <label for="date_naissance">Date de Naissance</label>
+                    <input type="date" id="date_naissance" required>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="sexe">Sexe</label>
+                    <select id="sexe" required>
+                        <option value="M">Masculin</option>
+                        <option value="F">Féminin</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="filiere">Filière</label>
+                <select id="filiere" required>
+                    <option value="">Chargement...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="annee">Année Académique</label>
+                <select id="annee" required>
+                    <option value="">Chargement...</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-submit">Enregistrer</button>
+        </form>
+    </div>
+
+    <!-- Liste des étudiants -->
+    <div class="table-container">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2>Liste des Inscrits</h2>
+                <button onclick="loadStudents()" style="background:none; border:none; color:var(--secondary-color); cursor:pointer;">↻ Actualiser</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Matricule</th>
+                        <th>Nom & Prénom</th>
+                        <th>Filière</th>
+                        <th>Année</th>
+                        <th>Sexe</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="studentsTableBody">
+                    <tr><td colspan="6" style="text-align:center;">Chargement des données...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'http://localhost:3000/api';
+
+    // 1. Charger les données au démarrage
+    document.addEventListener('DOMContentLoaded', () => {
+        loadFilieres();
+        loadAnnees();
+        loadStudents();
+    });
+
+    // 2. Charger les listes déroulantes
+    async function loadFilieres() {
+        try {
+            const res = await fetch(`${API_URL}/filieres`);
+            const data = await res.json();
+            const select = document.getElementById('filiere');
+            select.innerHTML = '<option value="">-- Choisir une filière --</option>';
+            data.data.forEach(f => {
+                select.innerHTML += `<option value="${f.id_filiere}">${f.code_filiere} - ${f.nom_filiere}</option>`;
+            });
+        } catch (e) { console.error("Erreur filieres", e); }
+    }
+
+    async function loadAnnees() {
+        try {
+            const res = await fetch(`${API_URL}/annees`);
+            const data = await res.json();
+            const select = document.getElementById('annee');
+            select.innerHTML = '<option value="">-- Choisir une année --</option>';
+            data.data.forEach(a => {
+                select.innerHTML += `<option value="${a.id_annee}">${a.libelle}</option>`;
+            });
+        } catch (e) { console.error("Erreur annees", e); }
+    }
+
+    // 3. Charger et afficher les étudiants
+    async function loadStudents() {
+        try {
+            const res = await fetch(`${API_URL}/etudiants`);
+            const json = await res.json();
+            const tbody = document.getElementById('studentsTableBody');
+            tbody.innerHTML = '';
+
+            if(json.data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Aucun étudiant trouvé.</td></tr>';
+                return;
+            }
+
+            json.data.forEach(etudiant => {
+                const sexeBadge = etudiant.sexe === 'M' 
+                    ? '<span class="badge badge-m">M</span>' 
+                    : '<span class="badge badge-f">F</span>';
+
+                const row = `
+                    <tr>
+                        <td><b>${etudiant.matricule}</b></td>
+                        <td>${etudiant.nom} ${etudiant.prenom}</td>
+                        <td>${etudiant.nom_filiere}</td>
+                        <td>${etudiant.annee}</td>
+                        <td>${sexeBadge}</td>
+                        <td>
+                            <button class="btn-delete" onclick="deleteStudent(${etudiant.id_etudiant})">Supprimer</button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        } catch (e) {
+            document.getElementById('studentsTableBody').innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Erreur de connexion au serveur.</td></tr>';
+        }
+    }
+
+    // 4. Gérer la soumission du formulaire (Ajout)
+    document.getElementById('studentForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = {
+            matricule: document.getElementById('matricule').value,
+            nom: document.getElementById('nom').value,
+            prenom: document.getElementById('prenom').value,
+            date_naissance: document.getElementById('date_naissance').value,
+            sexe: document.getElementById('sexe').value,
+            id_filiere: document.getElementById('filiere').value,
+            id_annee: document.getElementById('annee').value
+        };
+
+        try {
+            const res = await fetch(`${API_URL}/etudiants`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            const result = await res.json();
+
+            if (res.ok) {
+                showMessage('Étudiant ajouté avec succès !', 'success');
+                document.getElementById('studentForm').reset();
+                loadStudents(); // Recharger la table
+            } else {
+                showMessage('Erreur: ' + result.error, 'error');
+            }
+        } catch (error) {
+            showMessage('Erreur de communication serveur', 'error');
+        }
+    });
+
+    // 5. Supprimer un étudiant
+    async function deleteStudent(id) {
+        if(!confirm("Êtes-vous sûr de vouloir supprimer cet étudiant ?")) return;
+
+        try {
+            const res = await fetch(`${API_URL}/etudiants/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                loadStudents();
+            } else {
+                alert("Erreur lors de la suppression");
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    // Helper: Message Box
+    function showMessage(msg, type) {
+        const box = document.getElementById('messageBox');
+        box.textContent = msg;
+        box.className = type;
+        box.style.display = 'block';
+        setTimeout(() => box.style.display = 'none', 3000);
+    }
+</script>
+
+</body>
+</html>
