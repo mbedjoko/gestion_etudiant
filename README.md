@@ -1,5 +1,5 @@
 
-Scolarité Pro - Système de Gestion Intégré (Full Stack)
+**Scolarité Pro - Système de Gestion Intégré (Full Stack)**
 
 Scolarité Pro est une application de gestion académique complète utilisant une architecture client-serveur. Elle permet de centraliser les données des étudiants, des filières et des cycles universitaires avec une persistance des données via SQL.
 
